@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成结果 - AI论文标题生成器</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 收藏夹容器 -->
+    <div class="favorites-container">
+        <div class="favorites-header">
+            <h3><i class="fas fa-star"></i> 我的收藏</h3>
+            <button class="btn-clear-favorites" onclick="clearFavorites()">
+                <i class="fas fa-trash"></i>
+                清空收藏
+            </button>
+        </div>
+        <div class="favorites-list" id="favoritesList">
+            <!-- 收藏的标题将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <div class="results-container">
+        <h2 class="main-title">生成的论文标题</h2>
+
+        <div class="result-cards" id="titleCards">
+            <!-- 标题卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="result-actions">
+            <button class="btn-back" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i>
+                返回首页
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 从localStorage获取生成的标题
+        const titles = JSON.parse(localStorage.getItem('generatedTitles') || '[]');
+        const titleCardsContainer = document.getElementById('titleCards');
+        const favoritesList = document.getElementById('favoritesList');
+
+        // 生成标题卡片
+        titles.forEach((title, index) => {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.innerHTML = `
+                <h3>标题 ${index + 1}</h3>
+                <p>${title}</p>
+                <div class="card-actions">
+                    <button class="btn-copy" onclick="copyToClipboard('${title}')">
+                        <i class="fas fa-copy"></i>
+                        复制
+                    </button>
+                    <button class="btn-favorite" onclick="toggleFavorite(${index})">
+                        <i class="fas fa-star"></i>
+                        收藏
+                    </button>
+                </div>
+            `;
+            titleCardsContainer.appendChild(card);
+        });
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('标题已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+
+        // 切换收藏状态
+        function toggleFavorite(index) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const title = titles[index];
+            
+            const existingIndex = favorites.findIndex(fav => fav.title === title);
+            if (existingIndex === -1) {
+                favorites.push({ title, date: new Date().toISOString() });
+            } else {
+                favorites.splice(existingIndex, 1);
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            
+            // 更新按钮状态
+            const btn = document.querySelectorAll('.btn-favorite')[index];
+            btn.classList.toggle('favorited');
+            
+            // 更新收藏列表
+            updateFavoritesList();
+        }
+
+        // 清空收藏
+        function clearFavorites() {
+            if (confirm('确定要清空所有收藏吗？')) {
+                localStorage.removeItem('favorites');
+                updateFavoritesList();
+                // 更新所有收藏按钮状态
+                document.querySelectorAll('.btn-favorite').forEach(btn => {
+                    btn.classList.remove('favorited');
+                });
+            }
+        }
+
+        // 更新收藏列表
+        function updateFavoritesList() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            favoritesList.innerHTML = '';
+            
+            favorites.forEach((favorite, index) => {
+                const item = document.createElement('div');
+                item.className = 'favorite-item';
+                item.innerHTML = `
+                    <span>${favorite.title}</span>
+                    <button class="btn-remove-favorite" onclick="removeFavorite(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                favoritesList.appendChild(item);
+            });
+        }
+
+        // 移除单个收藏
+        function removeFavorite(index) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            favorites.splice(index, 1);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavoritesList();
+            
+            // 更新所有收藏按钮状态
+            document.querySelectorAll('.btn-favorite').forEach((btn, i) => {
+                const title = titles[i];
+                const isFavorited = favorites.some(fav => fav.title === title);
+                btn.classList.toggle('favorited', isFavorited);
+            });
+        }
+
+        // 初始化收藏状态和列表
+        document.addEventListener('DOMContentLoaded', () => {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            document.querySelectorAll('.btn-favorite').forEach((btn, index) => {
+                const title = titles[index];
+                if (favorites.some(fav => fav.title === title)) {
+                    btn.classList.add('favorited');
+                }
+            });
+            updateFavoritesList();
+        });
+    </script>
+</body>
+</html>
