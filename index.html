@@ -602,7 +602,7 @@
                     // 进度条更新
                     let progress = 0;
                     const progressInterval = setInterval(() => {
-                        progress += (100/40); // 60秒内完成100%
+                        progress += (100/40); // 40秒内完成100%
                         if (progress > 100) progress = 100;
                         progressBarFill.style.width = progress + '%';
                         progressText.textContent = Math.round(progress) + '%';
@@ -623,7 +623,7 @@
                         }
                     }, 1000);
 
-                    // 60秒后关闭加载弹窗
+                    // 40秒后关闭加载弹窗
                     setTimeout(() => {
                         clearInterval(countdownInterval);
                         clearInterval(progressInterval);
@@ -632,7 +632,7 @@
                         // 重置进度条
                         progressBarFill.style.width = '0%';
                         progressText.textContent = '0%';
-                    }, 60000);
+                    }, 40000);
 
                 } catch (error) {
                     console.error('生成标题时发生错误:', error);
