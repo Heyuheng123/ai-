@@ -593,7 +593,7 @@
                     const progressText = document.querySelector('.progress-text');
                     
                     // 设置倒计时
-                    let timeLeft = 60;
+                    let timeLeft = 40;
                     const countdownEl = document.createElement('p');
                     countdownEl.style.marginTop = '10px';
                     countdownEl.style.color = 'rgba(255, 255, 255, 0.7)';
@@ -602,7 +602,7 @@
                     // 进度条更新
                     let progress = 0;
                     const progressInterval = setInterval(() => {
-                        progress += (100/60); // 60秒内完成100%
+                        progress += (100/40); // 60秒内完成100%
                         if (progress > 100) progress = 100;
                         progressBarFill.style.width = progress + '%';
                         progressText.textContent = Math.round(progress) + '%';
